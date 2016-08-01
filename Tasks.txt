@@ -1,0 +1,4 @@
+1) sa gasesc unde trimite datele la BD prin new, update
+2) sa identific cand e new si cand e update
+3) sa nu mai trimita la BD 
+4) sa il puna intr-un array

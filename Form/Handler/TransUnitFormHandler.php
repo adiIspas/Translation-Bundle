@@ -109,7 +109,9 @@ class TransUnitFormHandler implements FormHandlerInterface
                     // The setTranslations() method only accepts PropelCollections
                     $translations = new \PropelObjectCollection($translations);
                 }
-
+                
+                
+                
                 $transUnit->setTranslations($translations);
 
                 $this->storage->persist($transUnit);

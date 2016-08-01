@@ -115,6 +115,11 @@ class TransUnitManager implements TransUnitManagerInterface
      */
     public function updateTranslation(TransUnitInterface $transUnit, $locale, $content, $flush = false, $merge = false, \DateTime $modifiedOn = null)
     {
+
+        $output = fopen("logs.log", "a+");
+        $log_message = 'Functia updateTranslation()';
+        fwrite($output, $log_message . PHP_EOL);
+
         $translation = null;
         $i = 0;
         $end = $transUnit->getTranslations()->count();
@@ -163,6 +168,11 @@ class TransUnitManager implements TransUnitManagerInterface
      */
     public function updateTranslationsContent(TransUnitInterface $transUnit, array $translations, $flush = false)
     {
+
+        $output = fopen("logs.log", "a+");
+        $log_message = 'Functia updateTranslationsContent()';
+        fwrite($output, $log_message . PHP_EOL);
+
         foreach ($translations as $locale => $content) {
             if (!empty($content)) {
                 if ($transUnit->hasTranslation($locale)) {
