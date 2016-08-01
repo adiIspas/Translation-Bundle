@@ -82,6 +82,11 @@ class TransUnitFormHandler implements FormHandlerInterface
      */
     public function process(FormInterface $form, Request $request)
     {
+
+        $output = fopen("logs.log", "a+");
+        $log_message = 'Functia process()';
+        fwrite($output, $log_message . PHP_EOL);
+
         $valid = false;
 
         if ($request->isMethod('POST')) {
