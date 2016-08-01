@@ -1,0 +1,81 @@
+<?php
+
+namespace Lexik\Bundle\TranslationBundle\Form\Type;
+
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+
+/**
+ * TransUnit form type.
+ *
+ * @author Cédric Girard <c.girard@lexik.fr>
+ */
+class TransUnitType extends AbstractType
+{
+    /**
+     * @var array
+     */
+    protected $domainsTranslation;
+
+    /**
+     * Constructor
+     *
+     * @param array $domainsTranslation
+     */
+    public function __construct(array $domainsTranslation)
+    {
+        $this->domainsTranslation = $domainsTranslation;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $options['domains'] = $this->domainsTranslation;
+
+        $builder->add('key', 'text', array(
+            'label' => 'translations.key',
+        ));
+        $builder->add('domain', 'choice', array(
+            'label'   => 'translations.domain',
+            'choices' => array_combine($options['domains'], $options['domains']),
+        ));
+        $builder->add('translations', 'collection', array(
+            'type'     => 'lxk_translation',
+            'label'    => 'translations.page_title',
+            'required' => false,
+            'options'  => array(
+                'data_class' => $options['translation_class'],
+            ),
+        ));
+        $builder->add('save', 'submit', array(
+            'label' => 'translations.save',
+        ));
+        $builder->add('save_add', 'submit', array(
+            'label' => 'translations.save_add',
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class'         => null,
+            'domains'            => array('validators'),
+            'translation_class'  => null,
+            'translation_domain' => 'LexikTranslationBundle',
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName()
+    {
+        return 'lxk_trans_unit';
+    }
+}

@@ -1,0 +1,6 @@
+lexik_translation_app:
+    resource: "@LexikTranslationBundle/Resources/config/routing/app.yml"
+
+lexik_translation_api:
+    resource: "@LexikTranslationBundle/Resources/config/routing/api.yml"
+    prefix: /api
