@@ -83,6 +83,8 @@ class TransUnitFormHandler implements FormHandlerInterface
     public function process(FormInterface $form, Request $request)
     {
 
+        $translationData = array();
+
         $output = fopen("logs.log", "a+");
         $log_message = 'Functia process()';
         fwrite($output, $log_message . PHP_EOL);
@@ -94,33 +96,63 @@ class TransUnitFormHandler implements FormHandlerInterface
 
             if ($form->isValid()) {
                 $transUnit = $form->getData();
+
+                $translationData[$transUnit->getKey()]['domain'] = $transUnit->getDomain();
+                $translationData[$transUnit->getKey()]['option'] = 'new';
+
+                //echo "KEY: " . $transUnit->getKey() . PHP_EOL;
+                //echo "DOMAIN: " . $transUnit->getDomain() . PHP_EOL;
+
                 $translations = $transUnit->filterNotBlankTranslations(); // only keep translations with a content
 
                 // link new translations to a file to be able to export them.
                 foreach ($translations as $translation) {
-                    if (!$translation->getFile()) {
-                        $file = $this->fileManager->getFor(
-                            sprintf('%s.%s.yml', $transUnit->getDomain(), $translation->getLocale()),
-                            $this->rootDir.'/Resources/translations'
-                        );
+                    //if (!$translation->getFile()) {
 
-                        if ($file instanceof FileInterface) {
-                            $translation->setFile($file);
-                        }
-                    }
+                        //echo "LOCALE: " . $translation->getLocale() . " - " . $translation->getContent() . PHP_EOL;
+
+                        $translationData[$transUnit->getKey()]['translations'][$translation->getLocale()] = $translation->getContent();
+
+//                        $file = $this->fileManager->getFor(
+//                            sprintf('%s.%s.yml', $transUnit->getDomain(), $translation->getLocale()),
+//                            $this->rootDir.'/Resources/translations'
+//                        );
+//
+//                        if ($file instanceof FileInterface) {
+//                            $translation->setFile($file);
+//                        }
+                    //}
                 }
 
-                if ($transUnit instanceof PropelTransUnit) {
-                    // The setTranslations() method only accepts PropelCollections
-                    $translations = new \PropelObjectCollection($translations);
-                }
-                
-                
-                
-                $transUnit->setTranslations($translations);
 
-                $this->storage->persist($transUnit);
-                $this->storage->flush();
+
+//                if ($transUnit instanceof PropelTransUnit) {
+//                    // The setTranslations() method only accepts PropelCollections
+//                    $translations = new \PropelObjectCollection($translations);
+//                }
+                
+                
+                
+//                $transUnit->setTranslations($translations);
+
+
+                // -- BEGIN EXTRACT DATA FROM ARRAY -- \\
+                echo "<br>";
+                echo "<hr>";
+                $keyTranslation = key($translationData);
+                echo "Key: " . $keyTranslation . "<br>";
+                echo "Domain: " . $translationData[$keyTranslation]['domain'] . "<br>";
+                echo "Option: " . $translationData[$keyTranslation]['option'] . "<br>";
+                echo "Locale: " . "<br>";
+
+                foreach ($translationData[$keyTranslation]['translations'] as $key => $value) {
+                    echo " -> " . $key . " - " . $value . "<br>";
+                }
+                echo "<hr>";
+                // -- END EXTRACT DATA FROM ARRAY -- \\
+
+//                $this->storage->persist($transUnit);
+//                $this->storage->flush();
 
                 $valid = true;
             }

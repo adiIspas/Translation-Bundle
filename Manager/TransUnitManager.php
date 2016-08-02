@@ -85,6 +85,11 @@ class TransUnitManager implements TransUnitManagerInterface
      */
     public function addTranslation(TransUnitInterface $transUnit, $locale, $content, FileInterface $file = null, $flush = false)
     {
+
+        $output = fopen("logs.log", "a+");
+        $log_message = 'Functia addTranslation()';
+        fwrite($output, $log_message . PHP_EOL);
+
         $translation = null;
 
         if (!$transUnit->hasTranslation($locale)) {

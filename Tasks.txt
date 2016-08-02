@@ -1,4 +1,6 @@
 1) sa gasesc unde trimite datele la BD prin new, update
+	1.1) sa identific unde ia informatiile din baza de date pentru a le afisa si unde le trimite in baza de date pentru memorare
+	1.2) sa identific unde le exporta/inporta in baza de date
 2) sa identific cand e new si cand e update
 3) sa nu mai trimita la BD 
 4) sa il puna intr-un array
