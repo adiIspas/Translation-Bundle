@@ -138,6 +138,7 @@ class TransUnitManager implements TransUnitManagerInterface
         if ($found) {
             /* @var Translation $translation */
             $translation = $transUnit->getTranslations()->get($i - 1);
+
             if ($merge) {
                 if ($translation->getContent() == $content) {
                     return null;
@@ -157,13 +158,13 @@ class TransUnitManager implements TransUnitManagerInterface
             $translation->setContent($content);
         }
 
-        if (null !== $translation && $this->storage instanceof PropelStorage) {
-            $this->storage->persist($translation);
-        }
+//        if (null !== $translation && $this->storage instanceof PropelStorage) {
+//            $this->storage->persist($translation);
+//        }
 
-        if ($flush) {
-            $this->storage->flush();
-        }
+//        if ($flush) {
+//           // $this->storage->flush();
+//        }
 
         return $translation;
     }
@@ -183,9 +184,9 @@ class TransUnitManager implements TransUnitManagerInterface
                 if ($transUnit->hasTranslation($locale)) {
                     $this->updateTranslation($transUnit, $locale, $content);
 
-                    if ($this->storage instanceof PropelStorage) {
-                        $this->storage->persist($transUnit);
-                    }
+//                    if ($this->storage instanceof PropelStorage) {
+//                        $this->storage->persist($transUnit);
+//                    }
                 } else {
                     //We need to get a proper file for this translation
                     $file = $this->getTranslationFile($transUnit, $locale);

@@ -75,6 +75,10 @@ class TransUnitRepository extends EntityRepository
      */
     public function getTransUnitList(array $locales = null, $rows = 20, $page = 1, array $filters = null)
     {
+        $output = fopen("logs.log", "a+");
+        $log_message = 'Functia getTransUnitList() - extrage din baza de date traducerile';
+        fwrite($output, $log_message . PHP_EOL);
+
         $this->loadCustomHydrator();
 
         $sortColumn = isset($filters['sidx']) ? $filters['sidx'] : 'id';
