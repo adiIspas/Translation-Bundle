@@ -4,3 +4,10 @@
 2) sa identific cand e new si cand e update
 3) sa nu mai trimita la BD 
 4) sa il puna intr-un array
+
+--------
+
+* Prin NEW datele se trimit prin functia: process [public function process(FormInterface $form, Request $request)]
+* Prin UPDATE (cu sau fara traducere existenta) datele se trimit prin functia: updateFromRequest [public function updateFromRequest($id, Request $request)]
+* Afisarea datelor in GRID se face prin functia: getTransUnitList [public function getTransUnitList(array $locales = null, $rows = 20, $page = 1, array $filters = null)]
+* Afisarea statisticilor in PRIVIRE DE ANSAMBLU se face prin functia: countByDomains [public function countByDomains()]

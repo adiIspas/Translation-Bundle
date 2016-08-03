@@ -171,6 +171,10 @@ class DataGridRequestHandler
      */
     public function updateFromRequest($id, Request $request)
     {
+        $output = fopen("logs.log", "a+");
+        $log_message = 'Functia updateFromRequest() - Updateaza in baza de date traducerile';
+        fwrite($output, $log_message . PHP_EOL);
+
         $transUnit = $this->storage->getTransUnitById($id);
 
         if (!$transUnit) {
@@ -189,7 +193,10 @@ class DataGridRequestHandler
         }
 
         // AICI PUNE IN BAZA DE DATE UPDATE-URILE
-        //$this->storage->flush();
+        $this->storage->flush();
+
+        $outputTwo = fopen("traduceri.log", "a+");
+        fwrite($outputTwo, $transUnit->getKey() . PHP_EOL);
 
         return $transUnit;
     }
