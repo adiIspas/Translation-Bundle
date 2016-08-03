@@ -90,6 +90,9 @@ class FileImporter
      */
     public function import(\Symfony\Component\Finder\SplFileInfo $file, $forceUpdate = false, $merge = false)
     {
+        // AICI SE FAC IMPORTURILE IN BAZA DE DATE
+        //|\\
+
         $this->skippedKeys = array();
         $imported = 0;
         list($domain, $locale, $extention) = explode('.', $file->getFilename());

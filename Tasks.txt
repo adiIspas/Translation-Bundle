@@ -11,3 +11,5 @@
 * Prin UPDATE (cu sau fara traducere existenta) datele se trimit prin functia: updateFromRequest [public function updateFromRequest($id, Request $request)]
 * Afisarea datelor in GRID se face prin functia: getTransUnitList [public function getTransUnitList(array $locales = null, $rows = 20, $page = 1, array $filters = null)]
 * Afisarea statisticilor in PRIVIRE DE ANSAMBLU se face prin functia: countByDomains [public function countByDomains()]
+* IMPORTAREA datelor in baza de date se face prin functia: import [public function import(\Symfony\Component\Finder\SplFileInfo $file, $forceUpdate = false, $merge = false)]
+* EXPORTAREA datelor din baza de date se face prin functia: getTranslationsForFile [public function getTranslationsForFile($file, $onlyUpdated)]
