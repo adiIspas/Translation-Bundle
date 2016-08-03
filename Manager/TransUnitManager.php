@@ -166,7 +166,7 @@ class TransUnitManager implements TransUnitManagerInterface
 //           // $this->storage->flush();
 //        }
 
-        return $translation;
+        //return $translation;
     }
 
     /**

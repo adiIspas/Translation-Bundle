@@ -188,7 +188,8 @@ class DataGridRequestHandler
             $transUnit->convertMongoTimestamp();
         }
 
-        $this->storage->flush();
+        // AICI PUNE IN BAZA DE DATE UPDATE-URILE
+        //$this->storage->flush();
 
         return $transUnit;
     }
