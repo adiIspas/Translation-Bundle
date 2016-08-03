@@ -175,6 +175,12 @@ class DataGridRequestHandler
         $log_message = 'Functia updateFromRequest() - Updateaza in baza de date traducerile';
         fwrite($output, $log_message . PHP_EOL);
 
+        /// Example call
+//        $url = 'http://localhost:80808/api/files/1'
+//        $response = $this->request('GET', $url, $header, $body, $options);
+//        $transUniot = $response->getBody();
+        ///
+
         $transUnit = $this->storage->getTransUnitById($id);
 
         if (!$transUnit) {
