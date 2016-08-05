@@ -55,9 +55,10 @@ class StatsAggregator
 
             $responseLocalesByDomain = $this->getResponseFromUrl($method, $uri_2 . $domain);
             $byLocale = json_decode($responseLocalesByDomain->getBody(true), true);
-            
-            //var_dump($this->localeManager->getLocales()); // AICI INTORC TOATE LOCALE
-            $locales = $this->localeManager->getLocales();
+
+            $responseLocales = $this->getResponseFromUrl($method, $uri_3);
+            $locales = json_decode($responseLocales->getBody(true), true);
+
             foreach ($locales as $locale) {
                 $localeCount = isset($byLocale[$locale]) ? $byLocale[$locale] : 0;
 
