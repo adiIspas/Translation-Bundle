@@ -16,6 +16,10 @@ class TranslationRepository extends EntityRepository
      */
     public function getLatestTranslationUpdatedAt()
     {
+        // TO DO - Trebuie sa apelez o functie de API
+
+        return null;
+        
         $date = $this->createQueryBuilder('t')
             ->select('MAX(t.updatedAt)')
             ->getQuery()
