@@ -4,6 +4,10 @@ namespace Lexik\Bundle\TranslationBundle\Util\Overview;
 
 use Lexik\Bundle\TranslationBundle\Manager\LocaleManagerInterface;
 use Lexik\Bundle\TranslationBundle\Storage\StorageInterface;
+use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\Message\Header;
+use Guzzle\Http\Message\Response;
+use Guzzle\Service\Client;
 
 /**
  * Class StatsAggregator
@@ -36,14 +40,25 @@ class StatsAggregator
      */
     public function getStats()
     {
+        $method = 'GET';
+        $uri_1 = 'http://localhost:8080/app_dev.php/api/count/domains';
+        $uri_2 = 'http://localhost:8080/app_dev.php/api/count/';
+        $uri_3 = 'http://localhost:8080/app_dev.php/api/locales';
+
+        $responseDomains = $this->getResponseFromUrl($method, $uri_1);
+        $countByDomains = json_decode($responseDomains->getBody(true), true);
+
         $stats = array();
-        $countByDomains = $this->storage->getCountTransUnitByDomains();
 
         foreach ($countByDomains as $domain => $total) {
             $stats[$domain] = array();
-            $byLocale = $this->storage->getCountTranslationByLocales($domain);
 
-            foreach ($this->localeManager->getLocales() as $locale) {
+            $responseLocalesByDomain = $this->getResponseFromUrl($method, $uri_2 . $domain);
+            $byLocale = json_decode($responseLocalesByDomain->getBody(true), true);
+            
+            //var_dump($this->localeManager->getLocales()); // AICI INTORC TOATE LOCALE
+            $locales = $this->localeManager->getLocales();
+            foreach ($locales as $locale) {
                 $localeCount = isset($byLocale[$locale]) ? $byLocale[$locale] : 0;
 
                 $stats[$domain][$locale] = array(
@@ -53,7 +68,37 @@ class StatsAggregator
                 );
             }
         }
-
         return $stats;
+    }
+
+    private function getResponseFromUrl($method, $uri, $headers = null, $body = null, $options = array())
+    {
+        $client = new Client();
+
+        try {
+            /** @var Response $response */
+            $response = $client->createRequest(
+                $method,
+                $uri,
+                $headers,
+                $body,
+                $options
+            )->send();
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+            $request  = $e->getRequest();
+            if ($response instanceof Response) {
+                $message = json_decode($response->getBody(true), true);
+                if (isset($message['errors'])) {
+                    $ex = new AuthClientErrorResponseException(key($message['errors']));
+                    $ex->setResponse($response);
+                    $ex->setRequest($request);
+                    throw $ex;
+                }
+            }
+            throw $e;
+        }
+
+        return $response;
     }
 }

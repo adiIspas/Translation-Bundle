@@ -130,14 +130,16 @@ class TransUnitFormHandler implements FormHandlerInterface
 //                    // The setTranslations() method only accepts PropelCollections
 //                    $translations = new \PropelObjectCollection($translations);
 //                }
-                
-                
-                
+
+
+
 //                $transUnit->setTranslations($translations);
 
 
                 // -- BEGIN EXTRACT DATA FROM ARRAY -- \\
                 echo "<br>";
+                //print_r($translationData);
+
                 echo "<hr>";
                 $keyTranslation = key($translationData);
                 echo "Key: " . $keyTranslation . "<br>";
