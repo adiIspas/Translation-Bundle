@@ -67,7 +67,7 @@ class TransUnitRepository extends EntityRepository
             ->getResult('SingleColumnArrayHydrator');
 
         var_dump($domains);
-        
+
         return $domains;
     }
 
