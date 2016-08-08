@@ -2,6 +2,11 @@
 
 namespace Lexik\Bundle\TranslationBundle\Storage;
 
+use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\Message\Header;
+use Guzzle\Http\Message\Response;
+use Guzzle\Service\Client;
+
 /**
  * Doctrine ORM storage class.
  *
@@ -33,7 +38,13 @@ class DoctrineORMStorage extends AbstractDoctrineStorage
      */
     public function getLatestUpdatedAt()
     {
-        return $this->getTranslationRepository()->getLatestTranslationUpdatedAt();
+        $method = 'GET';
+        $uri = 'http://localhost:8080/app_dev.php/api/latest_updated';
+
+        $responseDomains = $this->getResponseFromUrl($method, $uri);
+        $latestUpdated = json_decode($responseDomains->getBody(true), true);
+
+        return $latestUpdated;
     }
 
     /**
@@ -74,5 +85,36 @@ class DoctrineORMStorage extends AbstractDoctrineStorage
     protected function getTranslationRepository()
     {
         return $this->getManager()->getRepository($this->classes['translation']);
+    }
+
+    private function getResponseFromUrl($method, $uri, $headers = null, $body = null, $options = array())
+    {
+        $client = new Client();
+
+        try {
+            /** @var Response $response */
+            $response = $client->createRequest(
+                $method,
+                $uri,
+                $headers,
+                $body,
+                $options
+            )->send();
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+            $request  = $e->getRequest();
+            if ($response instanceof Response) {
+                $message = json_decode($response->getBody(true), true);
+                if (isset($message['errors'])) {
+                    $ex = new AuthClientErrorResponseException(key($message['errors']));
+                    $ex->setResponse($response);
+                    $ex->setRequest($request);
+                    throw $ex;
+                }
+            }
+            throw $e;
+        }
+
+        return $response;
     }
 }

@@ -55,9 +55,7 @@ class TransUnitRepository extends EntityRepository
      * @return array
      */
     public function getAllDomains()
-    {   
-        // TO DO - Trebuie sa apelez o functie de API
-
+    {
         $this->loadCustomHydrator();
 
         $domains = $this->createQueryBuilder('tu')

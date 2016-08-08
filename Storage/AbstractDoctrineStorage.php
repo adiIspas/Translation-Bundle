@@ -3,6 +3,10 @@
 namespace Lexik\Bundle\TranslationBundle\Storage;
 
 use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\Message\Header;
+use Guzzle\Http\Message\Response;
+use Guzzle\Service\Client;
 
 /**
  * Common doctrine storage logic.
@@ -133,7 +137,13 @@ abstract class AbstractDoctrineStorage implements StorageInterface
      */
     public function getTransUnitDomains()
     {
-        return $this->getTransUnitRepository()->getAllDomains();
+        $method = 'GET';
+        $uri = 'http://localhost:8080/app_dev.php/api/domains';
+
+        $responseDomains = $this->getResponseFromUrl($method, $uri);
+        $domains = json_decode($responseDomains->getBody(true), true);
+
+        return $domains;
     }
 
     /**
@@ -197,5 +207,36 @@ abstract class AbstractDoctrineStorage implements StorageInterface
     public function getTranslationsFromFile($file, $onlyUpdated)
     {
         return $this->getTransUnitRepository()->getTranslationsForFile($file, $onlyUpdated);
+    }
+
+    private function getResponseFromUrl($method, $uri, $headers = null, $body = null, $options = array())
+    {
+        $client = new Client();
+
+        try {
+            /** @var Response $response */
+            $response = $client->createRequest(
+                $method,
+                $uri,
+                $headers,
+                $body,
+                $options
+            )->send();
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+            $request  = $e->getRequest();
+            if ($response instanceof Response) {
+                $message = json_decode($response->getBody(true), true);
+                if (isset($message['errors'])) {
+                    $ex = new AuthClientErrorResponseException(key($message['errors']));
+                    $ex->setResponse($response);
+                    $ex->setRequest($request);
+                    throw $ex;
+                }
+            }
+            throw $e;
+        }
+
+        return $response;
     }
 }
