@@ -7,6 +7,10 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\EntityRepository;
 use Lexik\Bundle\TranslationBundle\Model\File as ModelFile;
+use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\Message\Header;
+use Guzzle\Http\Message\Response;
+use Guzzle\Service\Client;
 
 /**
  * Repository for TransUnit entity.
@@ -64,8 +68,6 @@ class TransUnitRepository extends EntityRepository
             ->getQuery()
             ->getResult('SingleColumnArrayHydrator');
 
-        var_dump($domains);
-
         return $domains;
     }
 
@@ -81,57 +83,73 @@ class TransUnitRepository extends EntityRepository
     public function getTransUnitList(array $locales = null, $rows = 20, $page = 1, array $filters = null)
     {
 
-        // CE SE INTAMPLA AICI TREBUIE SA FIE PE SERVER SI SA RETURNEZE O LISTA DE TRANSUNITS
-        $output = fopen("logs.log", "a+");
-        $log_message = 'Functia getTransUnitList() - extrage din baza de date traducerile';
-        fwrite($output, $log_message . PHP_EOL);
+//        var_dump($filters);
+//        echo "<hr>";
+//        var_dump($locales);
+//        echo "<hr>";
+//        var_dump($rows);
+//        echo "<hr>";
+//        var_dump($page);
+//        echo "<hr>";
 
-        $this->loadCustomHydrator();
 
-        $sortColumn = isset($filters['sidx']) ? $filters['sidx'] : 'id';
-        $order = isset($filters['sord']) ? $filters['sord'] : 'ASC';
-
-        $builder = $this->createQueryBuilder('tu')
-            ->select('tu.id');
-
-        $this->addTransUnitFilters($builder, $filters);
-        $this->addTranslationFilter($builder, $locales, $filters);
-
-        $ids = $builder->orderBy(sprintf('tu.%s', $sortColumn), $order)
-            ->setFirstResult($rows * ($page - 1))
-            ->setMaxResults($rows)
-            ->getQuery()
-            ->getResult('SingleColumnArrayHydrator');
-
-        $transUnits = array();
-
-        if (count($ids) > 0) {
-            $qb = $this->createQueryBuilder('tu');
-
-            $transUnits = $qb->select('tu, te')
-                ->leftJoin('tu.translations', 'te')
-                ->andWhere($qb->expr()->in('tu.id', $ids))
-                ->andWhere($qb->expr()->in('te.locale', $locales))
-                ->orderBy(sprintf('tu.%s', $sortColumn), $order)
-                ->getQuery()
-                ->getArrayResult();
-        }
-
-//        $outputTwo = fopen("traduceri.log", "a+");
+//         CE SE INTAMPLA AICI TREBUIE SA FIE PE SERVER SI SA RETURNEZE O LISTA DE TRANSUNITS
+//        $output = fopen("logs.log", "a+");
+//        $log_message = 'Functia getTransUnitList() - extrage din baza de date traducerile';
+//        fwrite($output, $log_message . PHP_EOL);
 //
-//        foreach ($transUnits as $transUnit) {
-//            //$translations = $transUnit->getTranslations();
+//        $this->loadCustomHydrator();
 //
-//            foreach ($transUnit as $t) {
-//                print_r($t,true);
-//                break;
-//                //fwrite($outputTwo, $t->getDomain() . PHP_EOL);
-//           }
+//        $sortColumn = isset($filters['sidx']) ? $filters['sidx'] : 'id';
+//        $order = isset($filters['sord']) ? $filters['sord'] : 'ASC';
 //
-//            break;
+//        $builder = $this->createQueryBuilder('tu')
+//            ->select('tu.id');
+//
+//        $this->addTransUnitFilters($builder, $filters);
+//        $this->addTranslationFilter($builder, $locales, $filters);
+//
+//        $ids = $builder->orderBy(sprintf('tu.%s', $sortColumn), $order)
+//            ->setFirstResult($rows * ($page - 1))
+//            ->setMaxResults($rows)
+//            ->getQuery()
+//            ->getResult('SingleColumnArrayHydrator');
+//
+//        $transUnits = array();
+//
+//        if (count($ids) > 0) {
+//            $qb = $this->createQueryBuilder('tu');
+//
+//            $transUnits = $qb->select('tu, te')
+//                ->leftJoin('tu.translations', 'te')
+//                ->andWhere($qb->expr()->in('tu.id', $ids))
+//                ->andWhere($qb->expr()->in('te.locale', $locales))
+//                ->orderBy(sprintf('tu.%s', $sortColumn), $order)
+//                ->getQuery()
+//                ->getSQL();
 //        }
-        
-        return $transUnits;
+//
+//
+  //      var_dump($transUnits);
+//
+//        return $transUnits;
+//
+        $method = 'POST';
+        $uri = 'http://localhost:8080/app_dev.php/api/all_translations';
+
+        $body = array();
+        $body['filters'] = $filters;
+        $body['locales'] = $locales;
+        $body['rows'] = $rows;
+        $body['page'] = $page;
+
+        $responseTranslations = $this->getResponseFromUrl($method, $uri, null, $body);
+        $translations = json_decode($responseTranslations->getBody(true), true);
+
+        var_dump($translations);
+
+        return $translations;
+
     }
 
     /**
@@ -143,15 +161,13 @@ class TransUnitRepository extends EntityRepository
      */
     public function count(array $locales = null,  array $filters = null)
     {
-        $this->loadCustomHydrator();
+        $method = 'GET';
+        $uri = 'http://localhost:8080/app_dev.php/api/count';
+        
+        $responseDomains = $this->getResponseFromUrl($method, $uri);
+        $count = json_decode($responseDomains->getBody(true), true);
 
-        $builder = $this->createQueryBuilder('tu')
-            ->select('COUNT(DISTINCT tu.id) AS number');
-
-        $this->addTransUnitFilters($builder, $filters);
-        $this->addTranslationFilter($builder, $locales, $filters);
-
-        return (int) $builder->getQuery()->getResult(Query::HYDRATE_SINGLE_SCALAR);
+        return $count;
     }
 
     /**
@@ -259,5 +275,36 @@ class TransUnitRepository extends EntityRepository
     {
         $config = $this->getEntityManager()->getConfiguration();
         $config->addCustomHydrationMode('SingleColumnArrayHydrator', 'Lexik\Bundle\TranslationBundle\Util\Doctrine\SingleColumnArrayHydrator');
+    }
+
+    private function getResponseFromUrl($method, $uri, $headers = null, $body = null, $options = array())
+    {
+        $client = new Client();
+
+        try {
+            /** @var Response $response */
+            $response = $client->createRequest(
+                $method,
+                $uri,
+                $headers,
+                $body,
+                $options
+            )->send();
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+            $request  = $e->getRequest();
+            if ($response instanceof Response) {
+                $message = json_decode($response->getBody(true), true);
+                if (isset($message['errors'])) {
+                    $ex = new AuthClientErrorResponseException(key($message['errors']));
+                    $ex->setResponse($response);
+                    $ex->setRequest($request);
+                    throw $ex;
+                }
+            }
+            throw $e;
+        }
+
+        return $response;
     }
 }

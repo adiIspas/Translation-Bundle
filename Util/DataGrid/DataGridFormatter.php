@@ -98,7 +98,7 @@ class DataGridFormatter
         $formatted = array(
             '_id'     => $transUnit['id'],
             '_domain' => $transUnit['domain'],
-            '_key'    => $transUnit['key'],
+            '_key'    => $transUnit['keyName'],
         );
 
         // add locales in the same order as in managed_locales param
