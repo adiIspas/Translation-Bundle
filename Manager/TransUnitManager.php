@@ -185,7 +185,7 @@ class TransUnitManager implements TransUnitManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function updateTranslationsContent($id, array $translations, $flush = false)
+    public function updateTranslationsContent(TransUnitInterface $transUnit, array $translations, $flush = false)
     {
         foreach ($translations as $locale => $content) {
             if (!empty($content)) {
