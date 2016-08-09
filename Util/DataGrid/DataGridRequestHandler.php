@@ -2,6 +2,7 @@
 
 namespace Lexik\Bundle\TranslationBundle\Util\DataGrid;
 
+use Lexik\Bundle\TranslationBundle\Entity\Translation;
 use Lexik\Bundle\TranslationBundle\Manager\LocaleManagerInterface;
 use Lexik\Bundle\TranslationBundle\Document\TransUnit as TransUnitDocument;
 use Lexik\Bundle\TranslationBundle\Manager\TransUnitManagerInterface;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpKernel\Profiler\Profile;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\Translation\DataCollector\TranslationDataCollector;
 use Symfony\Component\Translation\DataCollectorTranslator;
+use \stdClass;
 
 /**
  * @author Cédric Girard <c.girard@lexik.fr>
@@ -175,13 +177,11 @@ class DataGridRequestHandler
         $log_message = 'Functia updateFromRequest() - Updateaza in baza de date traducerile';
         fwrite($output, $log_message . PHP_EOL);
 
-        /// Example call
-//        $url = 'http://localhost:80808/api/files/1'
-//        $response = $this->request('GET', $url, $header, $body, $options);
-//        $transUniot = $response->getBody();
-        ///
+        $transUnitArray = $this->storage->getTransUnitById($id);
 
-        $transUnit = $this->storage->getTransUnitById($id);
+        file_put_contents('continut.txt', print_r($request,true));
+
+        $transUnit = $this->arrayToObject($transUnitArray);
 
         if (!$transUnit) {
             throw new NotFoundHttpException(sprintf('No TransUnit found for "%s"', $id));
@@ -192,17 +192,14 @@ class DataGridRequestHandler
             $translationsContent[$locale] = $request->request->get($locale);
         }
 
-        $this->transUnitManager->updateTranslationsContent($transUnit, $translationsContent);
+        //$this->transUnitManager->updateTranslationsContent($transUnit, $translationsContent);
+        $this->transUnitManager->updateTranslationsContent($id, $translationsContent);
 
-        if ($transUnit instanceof TransUnitDocument) {
-            $transUnit->convertMongoTimestamp();
-        }
+//        if ($transUnit instanceof TransUnitDocument) {
+//            $transUnit->convertMongoTimestamp();
+//        }
 
-        // AICI PUNE IN BAZA DE DATE UPDATE-URILE
-        $this->storage->flush();
-
-        $outputTwo = fopen("traduceri.log", "a+");
-        fwrite($outputTwo, $transUnit->getKey() . PHP_EOL);
+        //$this->storage->flush();
 
         return $transUnit;
     }
@@ -284,5 +281,22 @@ class DataGridRequestHandler
         });
 
         return $parameters;
+    }
+
+    protected function arrayToObject($transUnitArray)
+    {
+        $transUnit = new \Lexik\Bundle\TranslationBundle\Entity\TransUnit();
+
+        $transUnit->setId($transUnitArray['id']);
+        $transUnit->setDomain($transUnitArray['domain']);
+        $transUnit->setKey($transUnitArray['key_name']);
+
+        foreach ($transUnitArray['translations'] as $trans) {
+            $translation = new Translation();
+            $translation->setLocale($trans['locale']);
+            $translation->setContent($trans['content']);
+        }
+
+        return $transUnit;
     }
 }

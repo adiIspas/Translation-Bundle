@@ -151,7 +151,16 @@ abstract class AbstractDoctrineStorage implements StorageInterface
      */
     public function getTransUnitById($id)
     {
-        return $this->getTransUnitRepository()->findOneById($id);
+
+        $method = 'GET';
+        $uri = 'http://localhost:8080/app_dev.php/api/find_by_id/' . $id;
+
+        $responseDomains = $this->getResponseFromUrl($method, $uri);
+        $transUnit = json_decode($responseDomains->getBody(true), true);
+
+        return $transUnit[0];
+
+        //return $this->getTransUnitRepository()->findOneById($id);
     }
 
     /**

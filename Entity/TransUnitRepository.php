@@ -82,58 +82,6 @@ class TransUnitRepository extends EntityRepository
      */
     public function getTransUnitList(array $locales = null, $rows = 20, $page = 1, array $filters = null)
     {
-
-//        var_dump($filters);
-//        echo "<hr>";
-//        var_dump($locales);
-//        echo "<hr>";
-//        var_dump($rows);
-//        echo "<hr>";
-//        var_dump($page);
-//        echo "<hr>";
-
-
-//         CE SE INTAMPLA AICI TREBUIE SA FIE PE SERVER SI SA RETURNEZE O LISTA DE TRANSUNITS
-//        $output = fopen("logs.log", "a+");
-//        $log_message = 'Functia getTransUnitList() - extrage din baza de date traducerile';
-//        fwrite($output, $log_message . PHP_EOL);
-//
-//        $this->loadCustomHydrator();
-//
-//        $sortColumn = isset($filters['sidx']) ? $filters['sidx'] : 'id';
-//        $order = isset($filters['sord']) ? $filters['sord'] : 'ASC';
-//
-//        $builder = $this->createQueryBuilder('tu')
-//            ->select('tu.id');
-//
-//        $this->addTransUnitFilters($builder, $filters);
-//        $this->addTranslationFilter($builder, $locales, $filters);
-//
-//        $ids = $builder->orderBy(sprintf('tu.%s', $sortColumn), $order)
-//            ->setFirstResult($rows * ($page - 1))
-//            ->setMaxResults($rows)
-//            ->getQuery()
-//            ->getResult('SingleColumnArrayHydrator');
-//
-//        $transUnits = array();
-//
-//        if (count($ids) > 0) {
-//            $qb = $this->createQueryBuilder('tu');
-//
-//            $transUnits = $qb->select('tu, te')
-//                ->leftJoin('tu.translations', 'te')
-//                ->andWhere($qb->expr()->in('tu.id', $ids))
-//                ->andWhere($qb->expr()->in('te.locale', $locales))
-//                ->orderBy(sprintf('tu.%s', $sortColumn), $order)
-//                ->getQuery()
-//                ->getSQL();
-//        }
-//
-//
-  //      var_dump($transUnits);
-//
-//        return $transUnits;
-//
         $method = 'POST';
         $uri = 'http://localhost:8080/app_dev.php/api/all_translations';
 
@@ -146,10 +94,7 @@ class TransUnitRepository extends EntityRepository
         $responseTranslations = $this->getResponseFromUrl($method, $uri, null, $body);
         $translations = json_decode($responseTranslations->getBody(true), true);
 
-        var_dump($translations);
-
         return $translations;
-
     }
 
     /**

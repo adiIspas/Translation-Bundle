@@ -68,6 +68,17 @@ abstract class TransUnit
     }
 
     /**
+     * Set id
+     *
+     * @param $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+
+    /**
      * Set key name
      *
      * @param string $key

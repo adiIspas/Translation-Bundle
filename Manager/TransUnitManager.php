@@ -5,6 +5,10 @@ namespace Lexik\Bundle\TranslationBundle\Manager;
 use Lexik\Bundle\TranslationBundle\Model\Translation;
 use Lexik\Bundle\TranslationBundle\Storage\StorageInterface;
 use Lexik\Bundle\TranslationBundle\Storage\PropelStorage;
+use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\Message\Header;
+use Guzzle\Http\Message\Response;
+use Guzzle\Service\Client;
 
 /**
  * Class to manage TransUnit entities or documents.
@@ -158,27 +162,31 @@ class TransUnitManager implements TransUnitManagerInterface
             $translation->setContent($content);
         }
 
-//        if (null !== $translation && $this->storage instanceof PropelStorage) {
-//            $this->storage->persist($translation);
-//        }
+        if ($flush) {
+            $this->storage->flush();
+        }
 
-//        if ($flush) {
-//           // $this->storage->flush();
-//        }
-
-        //return $translation;
+//        $method = 'POST';
+//        $uri = 'http://localhost:8080/app_dev.php/api/update';
+//
+//        $body = array();
+//        $body['id'] = $transUnit->getId();
+//        $body['locale'] = $locale;
+//        $body['content'] = $content;
+//
+//        file_put_contents('parametri.log', print_r($body,true));
+//
+//        $responseTranslation = $this->getResponseFromUrl($method, $uri, null, $body);
+//        $translation = json_decode($responseTranslation->getBody(true), true);
+//
+//        return $translation;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function updateTranslationsContent(TransUnitInterface $transUnit, array $translations, $flush = false)
+    public function updateTranslationsContent($id, array $translations, $flush = false)
     {
-
-        $output = fopen("logs.log", "a+");
-        $log_message = 'Functia updateTranslationsContent()';
-        fwrite($output, $log_message . PHP_EOL);
-
         foreach ($translations as $locale => $content) {
             if (!empty($content)) {
                 if ($transUnit->hasTranslation($locale)) {
@@ -195,9 +203,9 @@ class TransUnitManager implements TransUnitManagerInterface
             }
         }
 
-        if ($flush) {
-            $this->storage->flush();
-        }
+//        if ($flush) {
+//            $this->storage->flush();
+//        }
     }
 
     /**
@@ -225,5 +233,36 @@ class TransUnitManager implements TransUnitManagerInterface
         }
 
         return $file;
+    }
+
+    private function getResponseFromUrl($method, $uri, $headers = null, $body = null, $options = array())
+    {
+        $client = new Client();
+
+        try {
+            /** @var Response $response */
+            $response = $client->createRequest(
+                $method,
+                $uri,
+                $headers,
+                $body,
+                $options
+            )->send();
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+            $request  = $e->getRequest();
+            if ($response instanceof Response) {
+                $message = json_decode($response->getBody(true), true);
+                if (isset($message['errors'])) {
+                    $ex = new AuthClientErrorResponseException(key($message['errors']));
+                    $ex->setResponse($response);
+                    $ex->setRequest($request);
+                    throw $ex;
+                }
+            }
+            throw $e;
+        }
+
+        return $response;
     }
 }
