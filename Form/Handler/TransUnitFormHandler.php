@@ -10,6 +10,10 @@ use Lexik\Bundle\TranslationBundle\Storage\StorageInterface;
 use Lexik\Bundle\TranslationBundle\Propel\TransUnit as PropelTransUnit;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Guzzle\Http\Exception\BadResponseException;
+use Guzzle\Http\Message\Header;
+use Guzzle\Http\Message\Response;
+use Guzzle\Service\Client;
 
 /**
  * @author Cédric Girard <c.girard@lexik.fr>
@@ -84,11 +88,7 @@ class TransUnitFormHandler implements FormHandlerInterface
     {
 
         $translationData = array();
-
-        $output = fopen("logs.log", "a+");
-        $log_message = 'Functia process()';
-        fwrite($output, $log_message . PHP_EOL);
-
+        $body = array();
         $valid = false;
 
         if ($request->isMethod('POST')) {
@@ -97,11 +97,13 @@ class TransUnitFormHandler implements FormHandlerInterface
             if ($form->isValid()) {
                 $transUnit = $form->getData();
 
-                $translationData[$transUnit->getKey()]['domain'] = $transUnit->getDomain();
-                $translationData[$transUnit->getKey()]['option'] = 'new';
+                file_put_contents("vedem.txt",print_r($transUnit,true));
 
-                //echo "KEY: " . $transUnit->getKey() . PHP_EOL;
-                //echo "DOMAIN: " . $transUnit->getDomain() . PHP_EOL;
+                $translationData[$transUnit->getKey()]['domain'] = $transUnit->getDomain();
+
+                $body['key'] = $transUnit->getKey();
+                $body['domain'] = $transUnit->getDomain();
+                $body['rootDir'] = $this->rootDir;
 
                 $translations = $transUnit->filterNotBlankTranslations(); // only keep translations with a content
 
@@ -112,6 +114,8 @@ class TransUnitFormHandler implements FormHandlerInterface
                         //echo "LOCALE: " . $translation->getLocale() . " - " . $translation->getContent() . PHP_EOL;
 
                         $translationData[$transUnit->getKey()]['translations'][$translation->getLocale()] = $translation->getContent();
+                    
+                        $body['locales'][$translation->getLocale()] = $translation->getContent();
 
 //                        $file = $this->fileManager->getFor(
 //                            sprintf('%s.%s.yml', $transUnit->getDomain(), $translation->getLocale()),
@@ -137,29 +141,67 @@ class TransUnitFormHandler implements FormHandlerInterface
 
 
                 // -- BEGIN EXTRACT DATA FROM ARRAY -- \\
-                echo "<br>";
-                //print_r($translationData);
+//                echo "<br>";
+//                //print_r($translationData);
+//
+//                echo "<hr>";
+//                $keyTranslation = key($translationData);
+//                echo "Key: " . $keyTranslation . "<br>";
+//                echo "Domain: " . $translationData[$keyTranslation]['domain'] . "<br>";
+//                //echo "Option: " . $translationData[$keyTranslation]['option'] . "<br>";
+//                echo "Locale: " . "<br>";
+//
+//                foreach ($translationData[$keyTranslation]['translations'] as $key => $value) {
+//                    echo " -> " . $key . " - " . $value . "<br>";
+//                }
+//                echo "<hr>";
 
-                echo "<hr>";
-                $keyTranslation = key($translationData);
-                echo "Key: " . $keyTranslation . "<br>";
-                echo "Domain: " . $translationData[$keyTranslation]['domain'] . "<br>";
-                echo "Option: " . $translationData[$keyTranslation]['option'] . "<br>";
-                echo "Locale: " . "<br>";
-
-                foreach ($translationData[$keyTranslation]['translations'] as $key => $value) {
-                    echo " -> " . $key . " - " . $value . "<br>";
-                }
-                echo "<hr>";
+                //var_dump($body);
                 // -- END EXTRACT DATA FROM ARRAY -- \\
 
 //                $this->storage->persist($transUnit);
 //                $this->storage->flush();
 
+
+                $method = 'POST';
+                $uri = 'http://localhost:8080/app_dev.php/api/add_new_translation';
+
+                $this->getResponseFromUrl($method, $uri, null, $body);
+
                 $valid = true;
             }
         }
-
         return $valid;
+    }
+
+    private function getResponseFromUrl($method, $uri, $headers = null, $body = null, $options = array())
+    {
+        $client = new Client();
+
+        try {
+            /** @var Response $response */
+            $response = $client->createRequest(
+                $method,
+                $uri,
+                $headers,
+                $body,
+                $options
+            )->send();
+        } catch (BadResponseException $e) {
+            $response = $e->getResponse();
+            $request  = $e->getRequest();
+            if ($response instanceof Response) {
+                $message = json_decode($response->getBody(true), true);
+                if (isset($message['errors'])) {
+                    $ex = new AuthClientErrorResponseException(key($message['errors']));
+                    $ex->setResponse($response);
+                    $ex->setRequest($request);
+                    throw $ex;
+                }
+            }
+            throw $e;
+        }
+
+        return $response;
     }
 }

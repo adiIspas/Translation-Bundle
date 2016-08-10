@@ -169,7 +169,7 @@ class TranslationController extends Controller
 
             $redirectUrl = $form->get('save_add')->isClicked() ? 'lexik_translation_new' : 'lexik_translation_grid';
 
-            //return $this->redirect($this->generateUrl($redirectUrl));
+            return $this->redirect($this->generateUrl($redirectUrl));
         }
 
         return $this->render('LexikTranslationBundle:Translation:new.html.twig', array(
