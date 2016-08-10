@@ -2,6 +2,7 @@
 
 namespace Lexik\Bundle\TranslationBundle\Util\DataGrid;
 
+use Lexik\Bundle\TranslationBundle\Entity\File;
 use Lexik\Bundle\TranslationBundle\Entity\Translation;
 use Lexik\Bundle\TranslationBundle\Manager\LocaleManagerInterface;
 use Lexik\Bundle\TranslationBundle\Document\TransUnit as TransUnitDocument;
@@ -177,9 +178,9 @@ class DataGridRequestHandler
         $log_message = 'Functia updateFromRequest() - Updateaza in baza de date traducerile';
         fwrite($output, $log_message . PHP_EOL);
 
-        $transUnitArray = $this->storage->getTransUnitById($id);
+        $transUnitArray = $this->storage->getTransUnitById($id);;
 
-        file_put_contents('continut.txt', print_r($request,true));
+        file_put_contents('array.txt', print_r($transUnitArray,true));
 
         $transUnit = $this->arrayToObject($transUnitArray);
 
@@ -192,8 +193,12 @@ class DataGridRequestHandler
             $translationsContent[$locale] = $request->request->get($locale);
         }
 
+        file_put_contents('continut.txt', print_r($translationsContent,true));
+
         $this->transUnitManager->updateTranslationsContent($transUnit, $translationsContent);
         //$this->transUnitManager->updateTranslationsContent($id, $translationsContent);
+
+        file_put_contents('continut.txt', '1' . print_r($translationsContent,true));
 
 //        if ($transUnit instanceof TransUnitDocument) {
 //            $transUnit->convertMongoTimestamp();
@@ -293,8 +298,21 @@ class DataGridRequestHandler
 
         foreach ($transUnitArray['translations'] as $trans) {
             $translation = new Translation();
+            $translation->setTransUnit($transUnit);
             $translation->setLocale($trans['locale']);
             $translation->setContent($trans['content']);
+
+            $fileTrans = new File();
+            $fileTrans->setId($trans['file']['id']);
+            $fileTrans->setLocale($trans['file']['locale']);
+            $fileTrans->setDomain($trans['file']['domain']);
+            $fileTrans->setExtention($trans['file']['extention']);
+            $fileTrans->setPath($trans['file']['path']);
+            $fileTrans->setHash($trans['file']['hash']);
+
+            $translation->setFile($fileTrans);
+
+            $transUnit->addTranslation($translation);
         }
 
         return $transUnit;

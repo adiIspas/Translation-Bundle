@@ -90,16 +90,15 @@ class TransUnitManager implements TransUnitManagerInterface
     public function addTranslation(TransUnitInterface $transUnit, $locale, $content, FileInterface $file = null, $flush = false)
     {
 
-        $output = fopen("logs.log", "a+");
+        $output = fopen("trans.log", "a+");
         $log_message = 'Functia addTranslation()';
         fwrite($output, $log_message . PHP_EOL);
 
         $translation = null;
 
         if (!$transUnit->hasTranslation($locale)) {
-            $class = $this->storage->getModelClass('translation');
 
-            $translation = new $class();
+            $translation = new \Lexik\Bundle\TranslationBundle\Entity\Translation();
             $translation->setLocale($locale);
             $translation->setContent($content);
 
@@ -114,6 +113,32 @@ class TransUnitManager implements TransUnitManagerInterface
             if ($flush) {
                 $this->storage->flush();
             }
+        }
+
+        return $translation;
+    }
+
+    public function addTranslationContent(TransUnitInterface $transUnit, FileInterface $file = null, array $body)
+    {
+        $translation = null;
+        $body['idFile']['id'] = $file->getId();
+
+        if (!$transUnit->hasTranslation($body['locale'])) {
+
+            $translation = new \Lexik\Bundle\TranslationBundle\Entity\Translation();
+            $translation->setLocale($body['locale']);
+            $translation->setContent($body['content']);
+
+            if ($file !== null) {
+                $translation->setFile($file);
+            }
+
+            $transUnit->addTranslation($translation);
+
+            $method = 'POST';
+            $uri = 'http://localhost:8080/app_dev.php/api/add_translation_content';
+
+            $this->getResponseFromUrl($method, $uri, null, $body);
         }
 
         return $translation;
@@ -166,20 +191,31 @@ class TransUnitManager implements TransUnitManagerInterface
             $this->storage->flush();
         }
 
-//        $method = 'POST';
-//        $uri = 'http://localhost:8080/app_dev.php/api/update';
-//
-//        $body = array();
-//        $body['id'] = $transUnit->getId();
-//        $body['locale'] = $locale;
-//        $body['content'] = $content;
-//
-//        file_put_contents('parametri.log', print_r($body,true));
-//
-//        $responseTranslation = $this->getResponseFromUrl($method, $uri, null, $body);
-//        $translation = json_decode($responseTranslation->getBody(true), true);
-//
-//        return $translation;
+        return $translation;
+    }
+
+    /**
+     * @param $transUnit
+     * @param $body
+     * @return \Lexik\Bundle\TranslationBundle\Entity\Translation
+     * @throws AuthClientErrorResponseException
+     */
+    public function updateTranslationContent($transUnit, $body)
+    {
+        $method = 'POST';
+        $uri = 'http://localhost:8080/app_dev.php/api/update';
+
+        $responseTranslation = $this->getResponseFromUrl($method, $uri, null, $body);
+        $translationArray = json_decode($responseTranslation->getBody(true), true);
+
+        $translation = new \Lexik\Bundle\TranslationBundle\Entity\Translation();
+
+        $translation->setLocale($translationArray['locale']);
+        $translation->setContent($translationArray['content']);
+
+        $transUnit->addTranslation($translation);
+
+        return $translation;
     }
 
     /**
@@ -187,25 +223,24 @@ class TransUnitManager implements TransUnitManagerInterface
      */
     public function updateTranslationsContent(TransUnitInterface $transUnit, array $translations, $flush = false)
     {
+
         foreach ($translations as $locale => $content) {
             if (!empty($content)) {
-                if ($transUnit->hasTranslation($locale)) {
-                    $this->updateTranslation($transUnit, $locale, $content);
 
-//                    if ($this->storage instanceof PropelStorage) {
-//                        $this->storage->persist($transUnit);
-//                    }
+                $body = array();
+                $body['id'] = $transUnit->getId();
+                $body['locale'] = $locale;
+                $body['content'] = $content;
+
+                if ($transUnit->hasTranslation($locale)) {
+                    $this->updateTranslationContent($transUnit,$body);
                 } else {
                     //We need to get a proper file for this translation
                     $file = $this->getTranslationFile($transUnit, $locale);
-                    $this->addTranslation($transUnit, $locale, $content, $file);
+                    $this->addTranslationContent($transUnit, $file, $body);
                 }
             }
         }
-
-//        if ($flush) {
-//            $this->storage->flush();
-//        }
     }
 
     /**

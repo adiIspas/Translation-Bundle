@@ -76,6 +76,15 @@ abstract class File
     }
 
     /**
+     * @param $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+
+    /**
      * Set domain
      *
      * @param string $domain
