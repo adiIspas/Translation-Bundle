@@ -35,6 +35,21 @@ class TransUnitRepository extends EntityRepository
             ->getArrayResult();
     }
 
+    public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+    {
+        $method = 'POST';
+        $uri = 'http://localhost:8080/app_dev.php/api/find_by';
+
+        $body['key'] = $criteria['key'];
+        $body['domain'] = $criteria['domain'];
+
+        $responseTransUnit = $this->getResponseFromUrl($method, $uri, null, $body);
+        $transUnit = json_decode($responseTransUnit->getBody(true), true);
+
+        return $transUnit;
+
+    }
+
     /**
      * Returns all domains for each locale.
      *

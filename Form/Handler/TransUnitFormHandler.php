@@ -86,7 +86,6 @@ class TransUnitFormHandler implements FormHandlerInterface
      */
     public function process(FormInterface $form, Request $request)
     {
-
         $translationData = array();
         $body = array();
         $valid = false;
@@ -96,8 +95,6 @@ class TransUnitFormHandler implements FormHandlerInterface
 
             if ($form->isValid()) {
                 $transUnit = $form->getData();
-
-                file_put_contents("vedem.txt",print_r($transUnit,true));
 
                 $translationData[$transUnit->getKey()]['domain'] = $transUnit->getDomain();
 
@@ -111,56 +108,10 @@ class TransUnitFormHandler implements FormHandlerInterface
                 foreach ($translations as $translation) {
                     //if (!$translation->getFile()) {
 
-                        //echo "LOCALE: " . $translation->getLocale() . " - " . $translation->getContent() . PHP_EOL;
-
                         $translationData[$transUnit->getKey()]['translations'][$translation->getLocale()] = $translation->getContent();
-                    
                         $body['locales'][$translation->getLocale()] = $translation->getContent();
 
-//                        $file = $this->fileManager->getFor(
-//                            sprintf('%s.%s.yml', $transUnit->getDomain(), $translation->getLocale()),
-//                            $this->rootDir.'/Resources/translations'
-//                        );
-//
-//                        if ($file instanceof FileInterface) {
-//                            $translation->setFile($file);
-//                        }
-                    //}
                 }
-
-
-
-//                if ($transUnit instanceof PropelTransUnit) {
-//                    // The setTranslations() method only accepts PropelCollections
-//                    $translations = new \PropelObjectCollection($translations);
-//                }
-
-
-
-//                $transUnit->setTranslations($translations);
-
-
-                // -- BEGIN EXTRACT DATA FROM ARRAY -- \\
-//                echo "<br>";
-//                //print_r($translationData);
-//
-//                echo "<hr>";
-//                $keyTranslation = key($translationData);
-//                echo "Key: " . $keyTranslation . "<br>";
-//                echo "Domain: " . $translationData[$keyTranslation]['domain'] . "<br>";
-//                //echo "Option: " . $translationData[$keyTranslation]['option'] . "<br>";
-//                echo "Locale: " . "<br>";
-//
-//                foreach ($translationData[$keyTranslation]['translations'] as $key => $value) {
-//                    echo " -> " . $key . " - " . $value . "<br>";
-//                }
-//                echo "<hr>";
-
-                //var_dump($body);
-                // -- END EXTRACT DATA FROM ARRAY -- \\
-
-//                $this->storage->persist($transUnit);
-//                $this->storage->flush();
 
 
                 $method = 'POST';

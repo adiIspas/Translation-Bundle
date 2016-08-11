@@ -154,13 +154,10 @@ class TranslationController extends Controller
      */
     public function newAction(Request $request)
     {
-        $output = fopen("logs.log", "a+");
-        $log_message = 'Functia newAction()';
-        fwrite($output, $log_message . PHP_EOL);
-
         $handler = $this->get('lexik_translation.form.handler.trans_unit');
 
         $form = $this->createForm('lxk_trans_unit', $handler->createFormData(), $handler->getFormOptions());
+
 
         if ($handler->process($form, $request)) {
             $message = $this->get('translator')->trans('translations.succesfully_added', array(), 'LexikTranslationBundle');
