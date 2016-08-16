@@ -2,6 +2,7 @@
 
 namespace Lexik\Bundle\TranslationBundle\Manager;
 
+use Lexik\Bundle\TranslationBundle\Entity\File;
 use Lexik\Bundle\TranslationBundle\Model\Translation;
 use Lexik\Bundle\TranslationBundle\Storage\StorageInterface;
 use Lexik\Bundle\TranslationBundle\Storage\PropelStorage;
@@ -264,7 +265,24 @@ class TransUnitManager implements TransUnitManagerInterface
         if ($file !== null) {
             //make sure we got the correct file for this locale and domain
             $name = sprintf('%s.%s.%s', $file->getDomain(), $locale, $file->getExtention());
-            $file = $this->fileManager->getFor($name, $this->kernelRootDir.DIRECTORY_SEPARATOR.$file->getPath());
+            //$file = $this->fileManager->getFor($name, $this->kernelRootDir.DIRECTORY_SEPARATOR.$file->getPath());
+
+            $method = 'POST';
+            $uri = 'http://localhost:8080/app_dev.php/api/get_file';
+
+            $body['name'] = $name;
+            $body['path'] = $this->kernelRootDir.DIRECTORY_SEPARATOR.$file->getPath();
+
+            $responseFile = $this->getResponseFromUrl($method, $uri, null, $body);
+            $fileArray = json_decode($responseFile->getBody(true), true);
+
+            $file = new File();
+            $file->setId($fileArray['id']);
+            $file->setDomain($fileArray['domain']);
+            $file->setLocale($fileArray['locale']);
+            $file->setExtention($fileArray['extention']);
+            $file->setPath($fileArray['path']);
+            $file->setHash($fileArray['hash']);
         }
 
         return $file;
