@@ -153,23 +153,40 @@ class TransUnitRepository extends EntityRepository
      */
     public function getTranslationsForFile(ModelFile $file, $onlyUpdated)
     {
-        $builder = $this->createQueryBuilder('tu')
-            ->select('tu.key, te.content')
-            ->leftJoin('tu.translations', 'te')
-            ->where('te.file = :file')
-            ->setParameter('file', $file->getId())
-            ->orderBy('te.id', 'asc');
+//        $builder = $this->createQueryBuilder('tu')
+//            ->select('tu.key, te.content')
+//            ->leftJoin('tu.translations', 'te')
+//            ->where('te.file = :file')
+//            ->setParameter('file', $file->getId())
+//            ->orderBy('te.id', 'asc');
+//
+//        if ($onlyUpdated) {
+//            $builder->andWhere($builder->expr()->gt('te.updatedAt', 'te.createdAt'));
+//        }
+//
+//        $results = $builder->getQuery()->getArrayResult();
+//
+//        $translations = array();
+//        foreach ($results as $result) {
+//            $translations[$result['key']] = $result['content'];
+//        }
 
-        if ($onlyUpdated) {
-            $builder->andWhere($builder->expr()->gt('te.updatedAt', 'te.createdAt'));
-        }
+        $method = 'POST';
+        $uri = 'http://localhost:8080/app_dev.php/api/get_translations_for_file';
 
-        $results = $builder->getQuery()->getArrayResult();
+        $body = array();
+        $body['id'] = $file->getId();
+        $body['domain'] = $file->getDomain();
+        $body['extention'] = $file->getExtention();
+        $body['locale'] = $file->getLocale();
+        $body['hash'] = $file->getHash();
+        $body['path'] = $file->getPath();
+        $body['onlyUpdated'] = ($onlyUpdated ? 'true' : 'false');
 
-        $translations = array();
-        foreach ($results as $result) {
-            $translations[$result['key']] = $result['content'];
-        }
+        $responseTranslations = $this->getResponseFromUrl($method, $uri, null, $body);
+        $translations = json_decode($responseTranslations->getBody(true), true);
+
+        file_put_contents("traduceri.txt", print_r($translations,true));
 
         return $translations;
     }

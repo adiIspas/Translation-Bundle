@@ -38,10 +38,11 @@ class FileRepository extends EntityRepository
 
         $method = 'POST';
         $uri = 'http://localhost:8080/app_dev.php/api/find_for_locales_and_domains';
-        $body['locales'] = $locales;
-        $body['domains'] = $domains;
 
-        $responseFind = $this->getResponseFromUrl($method, $uri);
+        $body['locales'] = !empty($locales) ?: '';
+        $body['domains'] = !empty($domains) ?: '';
+
+        $responseFind = $this->getResponseFromUrl($method, $uri, null, $body);
         $results = json_decode($responseFind->getBody(true), true);
 
         $files = array();
