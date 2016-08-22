@@ -248,7 +248,7 @@ class FileImporter
 
         return $transUnit;
     }
-    
+
     private function getResponseFromUrl($method, $uri, $headers = null, $body = null, $options = array())
     {
         $client = new Client();
