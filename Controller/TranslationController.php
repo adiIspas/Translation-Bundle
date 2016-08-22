@@ -127,7 +127,7 @@ class TranslationController extends Controller
         $cmd = 'php ../app/console lexik:translations:import --application-bundles';
 
         $process = new Process($cmd);
-        $process->setTimeout(60);
+        $process->setTimeout(30);
 
         $process->run(
             function ($type, $buffer) use ($output) {

@@ -115,7 +115,7 @@ class TransUnitFormHandler implements FormHandlerInterface
 
 
                 $method = 'POST';
-                $uri = 'http://localhost:8080/app_dev.php/api/add_new_translation';
+                $uri = 'http://trans-server.local/app_dev.php/api/add_new_translation';
 
                 $this->getResponseFromUrl($method, $uri, null, $body);
 

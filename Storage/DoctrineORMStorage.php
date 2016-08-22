@@ -39,7 +39,7 @@ class DoctrineORMStorage extends AbstractDoctrineStorage
     public function getLatestUpdatedAt()
     {
         $method = 'GET';
-        $uri = 'http://localhost:8080/app_dev.php/api/latest_updated';
+        $uri = 'http://trans-server.local/app_dev.php/api/latest_updated';
 
         $responseDomains = $this->getResponseFromUrl($method, $uri);
         $latestUpdated = json_decode($responseDomains->getBody(true), true);
