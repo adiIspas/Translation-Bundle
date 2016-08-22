@@ -174,12 +174,12 @@ class FileImporter
             }
         }
 
-        $this->storage->flush();
+        //$this->storage->flush();
 
         // clear only Lexik entities
-        foreach (array('file', 'trans_unit', 'translation') as $name) {
-            $this->storage->clear($this->storage->getModelClass($name));
-        }
+//        foreach (array('file', 'trans_unit', 'translation') as $name) {
+//            $this->storage->clear($this->storage->getModelClass($name));
+//        }
 
         return $imported;
     }
