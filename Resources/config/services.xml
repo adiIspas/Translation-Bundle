@@ -51,7 +51,6 @@
     </parameters>
 
     <services>
-
         <!-- Translator -->
         <service id="lexik_translation.translator" class="%lexik_translation.translator.class%">
             <argument type="service" id="service_container" />
@@ -75,6 +74,9 @@
             <argument type="service" id="lexik_translation.translation_storage" />
             <argument type="service" id="lexik_translation.file.manager" />
             <argument>%kernel.root_dir%</argument>
+            <call method="setServerUri">
+                <argument>%server_uri%</argument>
+            </call>
         </service>
 
         <service id="lexik_translation.file.manager" class="%lexik_translation.file.manager.class%">
@@ -95,6 +97,10 @@
             <call method="setCaseInsensitiveInsert">
                 <argument>%lexik_translation.importer.case_insensitive%</argument>
             </call>
+            <call method="setServerUri">
+                <argument>%server_uri%</argument>
+            </call>
+
         </service>
 
         <!-- Exporter -->
@@ -136,6 +142,9 @@
         <service id="lexik_translation.overview.stats_aggregator" class="%lexik_translation.overview.stats_aggregator.class%">
             <argument type="service" id="lexik_translation.translation_storage" />
             <argument type="service" id="lexik_translation.locale.manager" />
+            <call method="setServerUri">
+                <argument>%server_uri%</argument>
+            </call>
         </service>
 
         <!-- Form -->
@@ -154,6 +163,9 @@
             <argument type="service" id="lexik_translation.translation_storage" />
             <argument type="service" id="lexik_translation.locale.manager" />
             <argument>%kernel.root_dir%</argument>
+            <call method="setServerUri">
+                <argument>%server_uri%</argument>
+            </call>
         </service>
 
         <!-- Listener -->

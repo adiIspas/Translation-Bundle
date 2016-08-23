@@ -26,6 +26,11 @@ class StatsAggregator
     private $localeManager;
 
     /**
+     * @var String
+     */
+    private $uri;
+
+    /**
      * @param StorageInterface       $storage
      * @param LocaleManagerInterface $localeManager
      */
@@ -35,15 +40,20 @@ class StatsAggregator
         $this->localeManager = $localeManager;
     }
 
+    public function setServerUri($uri)
+    {
+        $this->uri = $uri;
+    }
+
     /**
      * @return array
      */
     public function getStats()
     {
         $method = 'GET';
-        $uri_1 = 'http://trans-server.local/app_dev.php/api/count/domains';
-        $uri_2 = 'http://trans-server.local/app_dev.php/api/count/';
-        $uri_3 = 'http://trans-server.local/app_dev.php/api/locales';
+        $uri_1 = 'http://trans-server.local/api/count/domains';
+        $uri_2 = 'http://trans-server.local/api/count/';
+        $uri_3 = 'http://trans-server.local/api/locales';
 
         $responseDomains = $this->getResponseFromUrl($method, $uri_1);
         $countByDomains = json_decode($responseDomains->getBody(true), true);

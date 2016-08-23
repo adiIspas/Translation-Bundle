@@ -46,6 +46,11 @@ class TransUnitFormHandler implements FormHandlerInterface
     protected $rootDir;
 
     /**
+     * @var String
+     */
+    private $uri;
+
+    /**
      * @param TransUnitManagerInterface $transUnitManager
      * @param FileManagerInterface      $fileManager
      * @param StorageInterface          $storage
@@ -59,6 +64,11 @@ class TransUnitFormHandler implements FormHandlerInterface
         $this->storage = $storage;
         $this->localeManager = $localeManager;
         $this->rootDir = $rootDir;
+    }
+
+    public function setServerUri($uri)
+    {
+        $this->uri = $uri;
     }
 
     /**
@@ -115,7 +125,7 @@ class TransUnitFormHandler implements FormHandlerInterface
 
 
                 $method = 'POST';
-                $uri = 'http://trans-server.local/app_dev.php/api/add_new_translation';
+                $uri = 'http://trans-server.local/api/add_new_translation';
 
                 $this->getResponseFromUrl($method, $uri, null, $body);
 

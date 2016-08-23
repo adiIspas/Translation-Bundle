@@ -38,7 +38,7 @@ class TransUnitRepository extends EntityRepository
     public function findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
         $method = 'POST';
-        $uri = 'http://trans-server.local/app_dev.php/api/find_by';
+        $uri = 'http://trans-server.local/api/find_by';
 
         $body['key'] = $criteria['key'];
         $body['domain'] = $criteria['domain'];
@@ -97,7 +97,7 @@ class TransUnitRepository extends EntityRepository
     public function getTransUnitList(array $locales = null, $rows = 20, $page = 1, array $filters = null)
     {
         $method = 'POST';
-        $uri = 'http://trans-server.local/app_dev.php/api/all_translations';
+        $uri = 'http://trans-server.local/api/all_translations';
 
         $body = array();
         $body['filters'] = $filters;
@@ -121,7 +121,7 @@ class TransUnitRepository extends EntityRepository
     public function count(array $locales = null,  array $filters = null)
     {
         $method = 'GET';
-        $uri = 'http://trans-server.local/app_dev.php/api/count';
+        $uri = 'http://trans-server.local/api/count';
         
         $responseDomains = $this->getResponseFromUrl($method, $uri);
         $count = json_decode($responseDomains->getBody(true), true);

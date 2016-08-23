@@ -55,6 +55,11 @@ class FileImporter
     private $skippedKeys;
 
     /**
+     * @var String
+     */
+    private $uri;
+
+    /**
      * Construct.
      *
      * @param array                     $loaders
@@ -71,13 +76,17 @@ class FileImporter
         $this->caseInsensitiveInsert = false;
         $this->skippedKeys = array();
     }
-
     /**
      * @param boolean $value
      */
     public function setCaseInsensitiveInsert($value)
     {
         $this->caseInsensitiveInsert = (bool) $value;
+    }
+
+    public function setServerUri($uri)
+    {
+        $this->uri = $uri;
     }
 
     /**
@@ -145,7 +154,6 @@ class FileImporter
 
             //$transUnit = $this->storage->getTransUnitByKeyAndDomain($key, $domain);
             $transUnit = $this->getTransUnitByKeyAndDomain($key, $domain);
-            file_put_contents("ajunge.txt", "A iesit din functie");
 
             if (!($transUnit instanceof TransUnitInterface)) {
                 $transUnit = $this->transUnitManager->create($key, $domain);
@@ -155,23 +163,25 @@ class FileImporter
             $translation = $this->transUnitManager->addTranslationContent($transUnit, $translationFile, array('id' => $transUnit->getId(), 'locale' => $locale, 'content' => $content));
             if ($translation instanceof TranslationInterface) {
                 $imported++;
-            } elseif ($forceUpdate) {
-                $translation = $this->transUnitManager->updateTranslation($transUnit, $locale, $content);
+            }
+
+            if ($forceUpdate) {
+                $this->transUnitManager->updateTranslation($transUnit, $locale, $content);
                 $imported++;
             } elseif ($merge) {
-                $translation = $this->transUnitManager->updateTranslation($transUnit, $locale, $content, false, true);
-                if ($translation instanceof TranslationInterface) {
-                    $imported++;
-                }
+                $this->transUnitManager->updateTranslation($transUnit, $locale, $content, false, true);
+//                if ($translation instanceof TranslationInterface) {
+//                    $imported++;
+//                }
             }
 
             $keys[] = $normalizedKey;
 
             // convert MongoTimestamp objects to time to don't get an error in:
             // Doctrine\ODM\MongoDB\Mapping\Types\TimestampType::convertToDatabaseValue()
-            if ($transUnit instanceof TransUnitDocument) {
-                $transUnit->convertMongoTimestamp();
-            }
+//            if ($transUnit instanceof TransUnitDocument) {
+//                $transUnit->convertMongoTimestamp();
+//            }
         }
 
         //$this->storage->flush();
@@ -187,7 +197,8 @@ class FileImporter
     private function getFileFor($name, $path)
     {
         $method = 'POST';
-        $uri = 'http://trans-server.local/app_dev.php/api/get_file';
+        //$uri = 'http://trans-server.local/api/get_file';
+        $uri =  $this->uri . 'get_file';
         $body['name'] = $name;
         $body['path'] = $path;
 
@@ -208,7 +219,8 @@ class FileImporter
     private function getTransUnitByKeyAndDomain($key, $domain)
     {
         $method = 'POST';
-        $uri = 'http://trans-server.local/app_dev.php/api/find_by';
+        //$uri = 'http://trans-server.local/api/find_by';
+        $uri =  $this->uri . 'find_by';
 
         $body['key'] = $key;
         $body['domain'] = $domain;

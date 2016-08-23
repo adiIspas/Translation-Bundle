@@ -34,6 +34,11 @@ class TransUnitManager implements TransUnitManagerInterface
     private $kernelRootDir;
 
     /**
+     * @var String
+     */
+    private $uri;
+
+    /**
      * Construct.
      *
      * @param StorageInterface $storage
@@ -45,6 +50,11 @@ class TransUnitManager implements TransUnitManagerInterface
         $this->storage = $storage;
         $this->fileManager = $fm;
         $this->kernelRootDir = $kernelRootDir;
+    }
+
+    public function setServerUri($uri)
+    {
+        $this->uri = $uri;
     }
 
     /**
@@ -137,7 +147,7 @@ class TransUnitManager implements TransUnitManagerInterface
             $transUnit->addTranslation($translation);
 
             $method = 'POST';
-            $uri = 'http://trans-server.local/app_dev.php/api/add_translation_content';
+            $uri = $this->uri . 'add_translation_content';
 
             $this->getResponseFromUrl($method, $uri, null, $body);
         }
@@ -204,7 +214,7 @@ class TransUnitManager implements TransUnitManagerInterface
     public function updateTranslationContent($transUnit, $body)
     {
         $method = 'POST';
-        $uri = 'http://trans-server.local/app_dev.php/api/update';
+        $uri = $this->uri . 'update';
 
         $responseTranslation = $this->getResponseFromUrl($method, $uri, null, $body);
         $translationArray = json_decode($responseTranslation->getBody(true), true);
@@ -268,7 +278,7 @@ class TransUnitManager implements TransUnitManagerInterface
             //$file = $this->fileManager->getFor($name, $this->kernelRootDir.DIRECTORY_SEPARATOR.$file->getPath());
 
             $method = 'POST';
-            $uri = 'http://trans-server.local/app_dev.php/api/get_file';
+            $uri = $this->uri . 'get_file';
 
             $body['name'] = $name;
             $body['path'] = $this->kernelRootDir.DIRECTORY_SEPARATOR.$file->getPath();

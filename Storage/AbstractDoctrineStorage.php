@@ -31,6 +31,11 @@ abstract class AbstractDoctrineStorage implements StorageInterface
     protected $classes;
 
     /**
+     * @var String
+     */
+    private $uri;
+
+    /**
      * @param ManagerRegistry $registry
      * @param array           $managerName
      * @param array           $classes
@@ -40,6 +45,11 @@ abstract class AbstractDoctrineStorage implements StorageInterface
         $this->registry = $registry;
         $this->managerName = $managerName;
         $this->classes = $classes;
+    }
+
+    public function setServerUri($uri)
+    {
+        $this->uri = $uri;
     }
 
     /**
@@ -138,7 +148,7 @@ abstract class AbstractDoctrineStorage implements StorageInterface
     public function getTransUnitDomains()
     {
         $method = 'GET';
-        $uri = 'http://trans-server.local/app_dev.php/api/domains';
+        $uri = 'http://trans-server.local/api/domains';
 
         $responseDomains = $this->getResponseFromUrl($method, $uri);
         $domains = json_decode($responseDomains->getBody(true), true);
@@ -153,7 +163,7 @@ abstract class AbstractDoctrineStorage implements StorageInterface
     {
 
         $method = 'GET';
-        $uri = 'http://trans-server.local/app_dev.php/api/find_by_id/' . $id;
+        $uri = 'http://trans-server.local/api/find_by_id/' . $id;
 
         $responseDomains = $this->getResponseFromUrl($method, $uri);
         $transUnit = json_decode($responseDomains->getBody(true), true);
