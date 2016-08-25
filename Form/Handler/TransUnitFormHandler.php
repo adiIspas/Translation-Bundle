@@ -104,7 +104,6 @@ class TransUnitFormHandler implements FormHandlerInterface
 
             $form->submit($request);
 
-
             if ($form->isValid()) {
                 $transUnit = $form->getData();
 
