@@ -99,9 +99,12 @@ class TransUnitFormHandler implements FormHandlerInterface
         $translationData = array();
         $body = array();
         $valid = false;
-
+        
         if ($request->isMethod('POST')) {
+
             $form->submit($request);
+
+            file_put_contents("add_new_translation.txt", "DUPA SUBMIT");
 
             if ($form->isValid()) {
                 $transUnit = $form->getData();
@@ -120,12 +123,10 @@ class TransUnitFormHandler implements FormHandlerInterface
 
                         $translationData[$transUnit->getKey()]['translations'][$translation->getLocale()] = $translation->getContent();
                         $body['locales'][$translation->getLocale()] = $translation->getContent();
-
                 }
 
-
                 $method = 'POST';
-                $uri = 'http://trans-server.local/api/add_new_translation';
+                $uri = 'http://serverproject/api/add_new_translation';
 
                 $this->getResponseFromUrl($method, $uri, null, $body);
 

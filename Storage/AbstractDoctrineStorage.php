@@ -148,7 +148,7 @@ abstract class AbstractDoctrineStorage implements StorageInterface
     public function getTransUnitDomains()
     {
         $method = 'GET';
-        $uri = 'http://trans-server.local/api/domains';
+        $uri = 'http://serverproject/api/domains';
 
         $responseDomains = $this->getResponseFromUrl($method, $uri);
         $domains = json_decode($responseDomains->getBody(true), true);
@@ -163,7 +163,7 @@ abstract class AbstractDoctrineStorage implements StorageInterface
     {
 
         $method = 'GET';
-        $uri = 'http://trans-server.local/api/find_by_id/' . $id;
+        $uri = 'http://serverproject/api/find_by_id/' . $id;
 
         $responseDomains = $this->getResponseFromUrl($method, $uri);
         $transUnit = json_decode($responseDomains->getBody(true), true);

@@ -51,9 +51,9 @@ class StatsAggregator
     public function getStats()
     {
         $method = 'GET';
-        $uri_1 = 'http://trans-server.local/api/count/domains';
-        $uri_2 = 'http://trans-server.local/api/count/';
-        $uri_3 = 'http://trans-server.local/api/locales';
+        $uri_1 = 'http://serverproject/api/count/domains';
+        $uri_2 = 'http://serverproject/api/count/';
+        $uri_3 = 'http://serverproject/api/locales';
 
         $responseDomains = $this->getResponseFromUrl($method, $uri_1);
         $countByDomains = json_decode($responseDomains->getBody(true), true);

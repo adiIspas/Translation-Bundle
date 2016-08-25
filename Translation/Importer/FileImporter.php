@@ -16,6 +16,7 @@ use Guzzle\Http\Exception\BadResponseException;
 use Guzzle\Http\Message\Header;
 use Guzzle\Http\Message\Response;
 use Guzzle\Service\Client;
+use Symfony\Component\Validator\Constraints\True;
 
 /**
  * Import a translation file into the database.
@@ -108,89 +109,156 @@ class FileImporter
     public function import(\Symfony\Component\Finder\SplFileInfo $file, $forceUpdate = false, $merge = false)
     {
         // AICI SE FAC IMPORTURILE IN BAZA DE DATE
-        //|\\
+        //|\\ Intra pentru fiecare file
+
+//        $this->skippedKeys = array();
+//        $imported = 0;
+//        list($domain, $locale, $extention) = explode('.', $file->getFilename());
+//
+//        if (!isset($this->loaders[$extention])) {
+//            throw new \RuntimeException(sprintf('No load found for "%s" format.', $extention));
+//        }
+//
+//        $messageCatalogue = $this->loaders[$extention]->load($file->getPathname(), $locale, $domain);
+//
+//        //file_put_contents("catalog.txt",print_r($messageCatalogue,true));
+//
+//        // CALL API
+//        $translationFile = $this->fileManager->getFor($file->getFilename(), $file->getPath());
+//
+//
+//        // MERGE PANA AICI
+//
+//        //$translationFile_1 = $translationFile;
+//       // $translationFile = $this->getFileFor($file->getFilename(), $file->getPath());
+//
+////        $transUnitKeys = fopen("keys.log", "a");
+////        $transUnitDomains = fopen("domains.log", "a");
+////        fwrite($transUnitKeys, PHP_EOL . PHP_EOL . $file->getFilename() . PHP_EOL . PHP_EOL);
+////        fwrite($transUnitDomains, $file->getFilename() . PHP_EOL . PHP_EOL);
+//
+////        if($translationFile_2 instanceof FileInterface)
+////            file_put_contents("egale.txt","Sunt egale");
+////        else
+////            file_put_contents("egale.txt","Nu sunt egale");
+////
+////        file_put_contents("file_client.txt", $translationFile->getId() . PHP_EOL . $translationFile->getDomain() .
+////            PHP_EOL . $translationFile->getLocale() . PHP_EOL . $translationFile->getExtention() . PHP_EOL . $translationFile->getPath() .
+////            PHP_EOL . $translationFile->getHash() . PHP_EOL . json_encode($translationFile->getTranslations()));
+//
+//        $keys = array();
+//
+//        //$transUnits = array();
+//
+//
+//
+//        foreach ($messageCatalogue->all($domain) as $key => $content) {
+//            if (!isset($content)) {
+//                continue; // skip empty translation values
+//            }
+//
+//            $normalizedKey = $this->caseInsensitiveInsert ? strtolower($key) : $key;
+//
+//            if (in_array($normalizedKey, $keys, true)) {
+//                $this->skippedKeys[] = $key;
+//                continue; // skip duplicate keys
+//            }
+//
+////            fwrite($transUnitKeys, $key . PHP_EOL);
+////            fwrite($transUnitDomains, $domain . PHP_EOL);
+//
+//            $transUnit = $this->storage->getTransUnitByKeyAndDomain($key, $domain);
+//            //$transUnit = $this->getTransUnitByKeyAndDomain($key, $domain);
+//
+//            if (!($transUnit instanceof TransUnitInterface)) {
+//                $transUnit = $this->transUnitManager->create($key, $domain);
+//            }
+//
+//            $translation = $this->transUnitManager->addTranslation($transUnit, $locale, $content, $translationFile);
+//
+//            // - BEGIN
+//
+//            $translation = $this->transUnitManager->addTranslationContent($transUnit, $translationFile, array('id' => $transUnit->getId(), 'locale' => $locale, 'content' => $content));
+//            if ($translation instanceof TranslationInterface) {
+//                $imported++;
+//            }
+//
+//            if ($forceUpdate) {
+//                $this->transUnitManager->updateTranslation($transUnit, $locale, $content);
+//                $imported++;
+//            } elseif ($merge) {
+//                $this->transUnitManager->updateTranslation($transUnit, $locale, $content, false, true);
+////                if ($translation instanceof TranslationInterface) {
+////                    $imported++;
+////                }
+//            }
+//
+//            // - END
+//
+//            $keys[] = $normalizedKey;
+//
+//            // convert MongoTimestamp objects to time to don't get an error in:
+//            // Doctrine\ODM\MongoDB\Mapping\Types\TimestampType::convertToDatabaseValue()
+////            if ($transUnit instanceof TransUnitDocument) {
+////                $transUnit->convertMongoTimestamp();
+////            }
+//        }
+//
+//        $this->storage->flush();
+//
+//         //clear only Lexik entities
+//        foreach (array('file', 'trans_unit', 'translation') as $name) {
+//            $this->storage->clear($this->storage->getModelClass($name));
+//        }
+//
+//        return $imported;
 
         $this->skippedKeys = array();
         $imported = 0;
         list($domain, $locale, $extention) = explode('.', $file->getFilename());
-
         if (!isset($this->loaders[$extention])) {
             throw new \RuntimeException(sprintf('No load found for "%s" format.', $extention));
         }
-
         $messageCatalogue = $this->loaders[$extention]->load($file->getPathname(), $locale, $domain);
-
-        // CALL API
-        //$translationFile = $this->fileManager->getFor($file->getFilename(), $file->getPath());
-
-
-        // MERGE PANA AICI
-
-        //$translationFile_1 = $translationFile;
-        $translationFile = $this->getFileFor($file->getFilename(), $file->getPath());
-
-//        if($translationFile_2 instanceof FileInterface)
-//            file_put_contents("egale.txt","Sunt egale");
-//        else
-//            file_put_contents("egale.txt","Nu sunt egale");
-
-//        file_put_contents("file_client.txt", $translationFile->getId() . PHP_EOL . $translationFile->getDomain() .
-//            PHP_EOL . $translationFile->getLocale() . PHP_EOL . $translationFile->getExtention() . PHP_EOL . $translationFile->getPath() .
-//            PHP_EOL . $translationFile->getHash() . PHP_EOL . json_encode($translationFile->getTranslations()));
-
+        $translationFile = $this->fileManager->getFor($file->getFilename(), $file->getPath());
         $keys = array();
-
         foreach ($messageCatalogue->all($domain) as $key => $content) {
             if (!isset($content)) {
                 continue; // skip empty translation values
             }
-
             $normalizedKey = $this->caseInsensitiveInsert ? strtolower($key) : $key;
-
             if (in_array($normalizedKey, $keys, true)) {
                 $this->skippedKeys[] = $key;
                 continue; // skip duplicate keys
             }
-
-            //$transUnit = $this->storage->getTransUnitByKeyAndDomain($key, $domain);
-            $transUnit = $this->getTransUnitByKeyAndDomain($key, $domain);
-
+            $transUnit = $this->storage->getTransUnitByKeyAndDomain($key, $domain);
             if (!($transUnit instanceof TransUnitInterface)) {
                 $transUnit = $this->transUnitManager->create($key, $domain);
             }
-
-            //$translation = $this->transUnitManager->addTranslation($transUnit, $locale, $content, $translationFile);
-            $translation = $this->transUnitManager->addTranslationContent($transUnit, $translationFile, array('id' => $transUnit->getId(), 'locale' => $locale, 'content' => $content));
+            $translation = $this->transUnitManager->addTranslation($transUnit, $locale, $content, $translationFile);
             if ($translation instanceof TranslationInterface) {
                 $imported++;
-            }
-
-            if ($forceUpdate) {
-                $this->transUnitManager->updateTranslation($transUnit, $locale, $content);
+            } elseif ($forceUpdate) {
+                $translation = $this->transUnitManager->updateTranslation($transUnit, $locale, $content);
                 $imported++;
             } elseif ($merge) {
-                $this->transUnitManager->updateTranslation($transUnit, $locale, $content, false, true);
-//                if ($translation instanceof TranslationInterface) {
-//                    $imported++;
-//                }
+                $translation = $this->transUnitManager->updateTranslation($transUnit, $locale, $content, false, true);
+                if ($translation instanceof TranslationInterface) {
+                    $imported++;
+                }
             }
-
             $keys[] = $normalizedKey;
-
             // convert MongoTimestamp objects to time to don't get an error in:
             // Doctrine\ODM\MongoDB\Mapping\Types\TimestampType::convertToDatabaseValue()
-//            if ($transUnit instanceof TransUnitDocument) {
-//                $transUnit->convertMongoTimestamp();
-//            }
+            if ($transUnit instanceof TransUnitDocument) {
+                $transUnit->convertMongoTimestamp();
+            }
         }
-
-        //$this->storage->flush();
-
+        $this->storage->flush();
         // clear only Lexik entities
-//        foreach (array('file', 'trans_unit', 'translation') as $name) {
-//            $this->storage->clear($this->storage->getModelClass($name));
-//        }
-
+        foreach (array('file', 'trans_unit', 'translation') as $name) {
+            $this->storage->clear($this->storage->getModelClass($name));
+        }
         return $imported;
     }
     

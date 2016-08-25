@@ -127,7 +127,7 @@ class TranslationController extends Controller
         $cmd = 'php ../app/console lexik:translations:import --application-bundles';
 
         $process = new Process($cmd);
-        $process->setTimeout(30);
+        $process->setTimeout(60);
 
         $process->run(
             function ($type, $buffer) use ($output) {
@@ -158,8 +158,9 @@ class TranslationController extends Controller
 
         $form = $this->createForm('lxk_trans_unit', $handler->createFormData(), $handler->getFormOptions());
 
-
-        if ($handler->process($form, $request)) {
+        if ($handler->process($form, $request))
+        //if(true)
+        {
             $message = $this->get('translator')->trans('translations.succesfully_added', array(), 'LexikTranslationBundle');
 
             $this->get('session')->getFlashBag()->add('success', $message);

@@ -37,7 +37,7 @@ class FileRepository extends EntityRepository
 //        $files = $builder->getQuery()->getResult();
 
         $method = 'POST';
-        $uri = 'http://trans-server.local/api/find_for_locales_and_domains';
+        $uri = 'http://serverproject/api/find_for_locales_and_domains';
 
         $body['locales'] = !empty($locales) ?: '';
         $body['domains'] = !empty($domains) ?: '';
