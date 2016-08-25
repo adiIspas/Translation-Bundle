@@ -212,7 +212,7 @@ class FileImporter
 //        }
 //
 //        return $imported;
-
+        
         $this->skippedKeys = array();
         $imported = 0;
         list($domain, $locale, $extention) = explode('.', $file->getFilename());
