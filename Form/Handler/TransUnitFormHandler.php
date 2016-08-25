@@ -104,7 +104,6 @@ class TransUnitFormHandler implements FormHandlerInterface
 
             $form->submit($request);
 
-            file_put_contents("add_new_translation.txt", "DUPA SUBMIT");
 
             if ($form->isValid()) {
                 $transUnit = $form->getData();
