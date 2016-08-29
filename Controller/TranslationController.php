@@ -50,6 +50,9 @@ class TranslationController extends Controller
      */
     public function gridAction()
     {
+
+        error_log("Orice");
+
         $tokens = null;
         if ($this->container->getParameter('lexik_translation.dev_tools.enable')) {
             $tokens = $this->get('lexik_translation.token_finder')->find();
